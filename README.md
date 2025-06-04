@@ -28,3 +28,8 @@
   - `EventSystem` + `IPointerClickHandler` 인터페이스
 
 ---
+## 주요 스크립트 설명
+
+- Board.cs      <-- 게임 전체 흐름 관리
+- Tile.cs <-- 각 숫자 타일 동작
+- UIController.cs <-- UI 제어(결과 패널, 타이머 등)
