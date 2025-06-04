@@ -2,40 +2,49 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// í¼ì¦ ë³´ë“œì˜ ë™ì‘ì„ ê´€ë¦¬í•˜ëŠ” í´ë˜ìŠ¤
+
 public class Board : MonoBehaviour
 {
 	[SerializeField]
-	private	GameObject	tilePrefab;								// ¼ıÀÚ Å¸ÀÏ ÇÁ¸®ÆÕ
+	private	GameObject	tilePrefab;								// ìˆ«ì íƒ€ì¼ í”„ë¦¬íŒ¹
 	[SerializeField]
-	private	Transform	tilesParent;							// Å¸ÀÏÀÌ ¹èÄ¡µÇ´Â "Board" ¿ÀºêÁ§Æ®ÀÇ Transform
+	private	Transform	tilesParent;							// íƒ€ì¼ì´ ë°°ì¹˜ë˜ëŠ” "Board" ì˜¤ë¸Œì íŠ¸ì˜ Transform
 
-	private	List<Tile>	tileList;								// »ı¼ºÇÑ Å¸ÀÏ Á¤º¸ ÀúÀå
+	private	List<Tile>	tileList;								// ìƒì„±í•œ íƒ€ì¼ ì •ë³´ ì €ì¥
 
-	private	Vector2Int	puzzleSize = new Vector2Int(4, 4);		// 4x4 ÆÛÁñ
-	private	float		neighborTileDistance = 102;				// ÀÎÁ¢ÇÑ Å¸ÀÏ »çÀÌÀÇ °Å¸®. º°µµ·Î °è»êÇÒ ¼öµµ ÀÖ´Ù.
+	private	Vector2Int	puzzleSize = new Vector2Int(4, 4);		// 4x4 í¼ì¦
+	private	float		neighborTileDistance = 102;				// ì¸ì ‘í•œ íƒ€ì¼ ì‚¬ì´ì˜ ê±°ë¦¬. ë³„ë„ë¡œ ê³„ì‚°í•  ìˆ˜ë„ ìˆë‹¤.
 
-	public	Vector3		EmptyTilePosition { set; get; }			// ºó Å¸ÀÏÀÇ À§Ä¡
-	public	int			Playtime { private set; get; } = 0;		// °ÔÀÓ ÇÃ·¹ÀÌ ½Ã°£
-	public	int			MoveCount { private set; get; } = 0;	// ÀÌµ¿ È½¼ö
+	public	Vector3		EmptyTilePosition { set; get; }			// ë¹ˆ íƒ€ì¼ì˜ ìœ„ì¹˜
+	public	int			Playtime { private set; get; } = 0;		// ê²Œì„ í”Œë ˆì´ ì‹œê°„
+	public	int			MoveCount { private set; get; } = 0;	// ì´ë™ íšŸìˆ˜
+
+
+
+/// ê²Œì„ ì‹œì‘ ì‹œ ì‹¤í–‰ë˜ëŠ” ì´ˆê¸°í™” ì½”ë£¨í‹´
 
 	private IEnumerator Start()
 	{
 		tileList = new List<Tile>();
 
-		SpawnTiles();
+		SpawnTiles(); // íƒ€ì¼ ìƒì„±
 
-		UnityEngine.UI.LayoutRebuilder.ForceRebuildLayoutImmediate(tilesParent.GetComponent<RectTransform>());
+		UnityEngine.UI.LayoutRebuilder.ForceRebuildLayoutImmediate(tilesParent.GetComponent<RectTransform>());  // UI ë°°ì¹˜ ê°•ì œ ê°±ì‹ 
 
-		// ÇöÀç ÇÁ·¹ÀÓÀÌ Á¾·áµÉ ¶§±îÁö ´ë±â
+		// í˜„ì¬ í”„ë ˆì„ì´ ì¢…ë£Œë  ë•Œê¹Œì§€ ëŒ€ê¸°(ë‹¤ìŒ í”„ë ˆì„ ê¹Œì§€ ëŒ€ê¸°)
 		yield return new WaitForEndOfFrame();
 
-		// tileList¿¡ ÀÖ´Â ¸ğµç ¿ä¼ÒÀÇ SetCorrectPosition() ¸Ş¼Òµå È£Ãâ
+		// ê° íƒ€ì¼ì˜ ì •ë‹µ ìœ„ì¹˜ ì„¤ì •
 		tileList.ForEach(x => x.SetCorrectPosition());
 
-		StartCoroutine("OnSuffle");
-		// °ÔÀÓ½ÃÀÛ°ú µ¿½Ã¿¡ ÇÃ·¹ÀÌ½Ã°£ ÃÊ ´ÜÀ§ ¿¬»ê
+		StartCoroutine("OnSuffle"); // ì…”í”Œ ì‹œì‘
+  
+		// ê²Œì„ì‹œì‘ê³¼ ë™ì‹œì— í”Œë ˆì´ì‹œê°„ ì´ˆ ë‹¨ìœ„ ì—°ì‚°
 		StartCoroutine("CalculatePlaytime");
 	}
+
+// í¼ì¦ íƒ€ì¼ ìƒì„±
 
 	private void SpawnTiles()
 	{
@@ -43,9 +52,10 @@ public class Board : MonoBehaviour
 		{
 			for ( int x = 0; x < puzzleSize.x; ++ x )
 			{
+   				// íƒ€ì¼ ìƒì„± ë° ë¶€ëª¨ì— ë°°ì¹˜
 				GameObject clone = Instantiate(tilePrefab, tilesParent);
 				Tile tile = clone.GetComponent<Tile>();
-
+				// íƒ€ì¼ ì´ˆê¸° ì„¤ì • (ë³´ë“œ ì°¸ì¡°, ì´ íƒ€ì¼ ìˆ˜, í˜„ì¬ íƒ€ì¼ ë²ˆí˜¸)
 				tile.Setup(this, puzzleSize.x * puzzleSize.y, y * puzzleSize.x + x + 1);
 
 				tileList.Add(tile);
@@ -53,6 +63,7 @@ public class Board : MonoBehaviour
 		}
 	}
 
+ 	// í¼ì¦ ì…”í”Œ (íƒ€ì¼ ìˆœì„œë¥¼ ì„ì˜ë¡œ ì„ìŒ)
 	private IEnumerator OnSuffle()
 	{
 		float current	= 0;
@@ -64,48 +75,59 @@ public class Board : MonoBehaviour
 			current += Time.deltaTime;
 			percent = current / time;
 
+   			// ëœë¤í•œ íƒ€ì¼ì„ ë¦¬ìŠ¤íŠ¸ì˜ ë§¨ ë’¤ë¡œ ì´ë™ (ì‹œê°ì  ìˆœì„œ ë³€ê²½)
 			int index = Random.Range(0, puzzleSize.x * puzzleSize.y);
 			tileList[index].transform.SetAsLastSibling();
 
 			yield return null;
 		}
 
-		// ¿ø·¡ ¼ÅÇÃ ¹æ½ÄÀº ´Ù¸¥ ¹æ½ÄÀÌ¾ú´Âµ¥ UI, GridLayoutGroupÀ» »ç¿ëÇÏ´Ùº¸´Ï ÀÚ½ÄÀÇ À§Ä¡¸¦ ¹Ù²Ù´Â °ÍÀ¸·Î ¼³Á¤
-		// ±×·¡¼­ ÇöÀç Å¸ÀÏ¸®½ºÆ®ÀÇ ¸¶Áö¸·¿¡ ÀÖ´Â ¿ä¼Ò°¡ ¹«Á¶°Ç ºó Å¸ÀÏ
+		// ì›ë˜ ì…”í”Œ ë°©ì‹ì€ ë‹¤ë¥¸ ë°©ì‹ì´ì—ˆëŠ”ë° UI, GridLayoutGroupì„ ì‚¬ìš©í•˜ë‹¤ë³´ë‹ˆ ìì‹ì˜ ìœ„ì¹˜ë¥¼ ë°”ê¾¸ëŠ” ê²ƒìœ¼ë¡œ ì„¤ì •
+		// ê·¸ë˜ì„œ í˜„ì¬ íƒ€ì¼ë¦¬ìŠ¤íŠ¸ì˜ ë§ˆì§€ë§‰ì— ìˆëŠ” ìš”ì†Œê°€ ë¬´ì¡°ê±´ ë¹ˆ íƒ€ì¼
 		EmptyTilePosition = tileList[tileList.Count-1].GetComponent<RectTransform>().localPosition;
 	}
 
+ 	// íƒ€ì¼ì´ ì´ë™ ê°€ëŠ¥í•œ ê±°ë¦¬ì¸ì§€ í™•ì¸í•˜ê³  ì´ë™ ì²˜ë¦¬
 	public void IsMoveTile(Tile tile)
-	{
+	{	
+ 		//ë¹ˆ ê³µê°„ê³¼ ì¸ì ‘í•œ ê²½ìš°ì—ë§Œ ì´ë™ ê°€ëŠ¥
 		if ( Vector3.Distance(EmptyTilePosition, tile.GetComponent<RectTransform>().localPosition) == neighborTileDistance)
 		{
 			Vector3 goalPosition = EmptyTilePosition;
 
+   			//ë¹ˆ ê³µê°„ ìœ„ì¹˜ë¥¼ í˜„ì¬ íƒ€ì¼ ìœ„ì¹˜ë¡œ ê°±ì‹ 
 			EmptyTilePosition = tile.GetComponent<RectTransform>().localPosition;
-
+			// íƒ€ì¼ ì´ë™ ì²˜ë¦¬
 			tile.OnMoveTo(goalPosition);
 
-			// Å¸ÀÏÀ» ÀÌµ¿ÇÒ ¶§¸¶´Ù ÀÌµ¿ È½¼ö Áõ°¡
+			// íƒ€ì¼ì„ ì´ë™í•  ë•Œë§ˆë‹¤ ì´ë™ íšŸìˆ˜ ì¦ê°€
 			MoveCount ++;
 		}
 	}
 
+ 	// ê²Œì„ í´ë¦¬ì–´ ì—¬ë¶€ í™•ì¸
 	public void IsGameOver()
-	{
+	{	
+ 		// ì˜¬ë°”ë¥¸ ìœ„ì¹˜ì— ìˆëŠ” íƒ€ì¼ë“¤ì„ ëª¨ë‘ ì°¾ìŒ
 		List<Tile> tiles = tileList.FindAll(x => x.IsCorrected == true);
 
 		Debug.Log("Correct Count : "+tiles.Count);
+
+  		// ë§ˆì§€ë§‰ ë¹ˆ ì¹¸ ì œì™¸ ëª¨ë“  íƒ€ì¼ì´ ì œìë¦¬ì— ìˆì„ ë•Œ í´ë¦¬ì–´
 		if ( tiles.Count == puzzleSize.x * puzzleSize.y - 1 )
 		{
 			Debug.Log("GameClear");
-			// °ÔÀÓ Å¬¸®¾îÇßÀ» ¶§ ½Ã°£°è»ê ÁßÁö
+   
+			// ê²Œì„ í´ë¦¬ì–´í–ˆì„ ë•Œ ì‹œê°„ê³„ì‚° ì¤‘ì§€
 			StopCoroutine("CalculatePlaytime");
-			// Board ¿ÀºêÁ§Æ®¿¡ ÄÄÆ÷³ÍÆ®·Î ¼³Á¤ÇÏ±â ¶§¹®¿¡
-			// ±×¸®°í ÇÑ¹ø¸¸ È£ÃâÇÏ±â ¶§¹®¿¡ º¯¼ö¸¦ ¸¸µéÁö ¾Ê°í ¹Ù·Î È£Ãâ..
+			// Board ì˜¤ë¸Œì íŠ¸ì— ì»´í¬ë„ŒíŠ¸ë¡œ ì„¤ì •í•˜ê¸° ë•Œë¬¸ì—
+			// ê·¸ë¦¬ê³  í•œë²ˆë§Œ í˜¸ì¶œí•˜ê¸° ë•Œë¬¸ì— ë³€ìˆ˜ë¥¼ ë§Œë“¤ì§€ ì•Šê³  ë°”ë¡œ í˜¸ì¶œ..
 			GetComponent<UIController>().OnResultPanel();
 		}
 	}
 
+ 	// 1ì´ˆë§ˆë‹¤ í”Œë ˆì´ ì‹œê°„ì„ ëˆ„ì í•˜ëŠ” ì½”ë£¨í‹´
+  
 	private IEnumerator CalculatePlaytime()
 	{
 		while ( true )
